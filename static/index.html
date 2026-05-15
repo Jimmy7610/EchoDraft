@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EchoDraft</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand-area">
+                <div class="brand-top-row">
+                    <div class="brand-logo">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+                        <h1>EchoDraft</h1>
+                        <span class="version-badge">v0.1.0</span>
+                    </div>
+                    <div class="lang-toggle">
+                        <button id="lang-sv" class="lang-btn active">SV</button>
+                        <button id="lang-en" class="lang-btn">EN</button>
+                    </div>
+                </div>
+                <div class="brand-subtitle" data-i18n="brand_subtitle">Lokal svensk manusuppläsare</div>
+                <div class="brand-credits" data-i18n="brand_credits">Byggd av Jimmy Eliasson</div>
+            </div>
+
+            <div class="card">
+                <label for="voice-select" data-i18n="lbl_voice">Röst</label>
+                <div class="voice-row">
+                    <select id="voice-select" class="flex-grow">
+                        <option value="" data-i18n="opt_loading_voices">Laddar röster...</option>
+                    </select>
+                    <button id="btn-test-voice" class="btn btn-secondary btn-icon" title="Testa röst" data-i18n-title="title_test_voice">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+                    </button>
+                </div>
+                <div id="voice-error" class="error-msg" style="display: none;"></div>
+            </div>
+
+            <div class="card">
+                <input type="file" id="file-upload" accept=".md,.txt" class="file-input">
+                <button class="btn btn-secondary w-full" onclick="document.getElementById('file-upload').click()">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg>
+                    <span data-i18n="btn_choose_file">Välj fil...</span>
+                </button>
+                <div class="help-text" data-i18n="help_text_local">Texten stannar lokalt i din webbläsare.</div>
+            </div>
+
+            <div class="card playback-card">
+                <div class="playback-row-main">
+                    <button id="btn-prev" class="btn btn-icon-sm" title="Föregående stycke" data-i18n-title="title_prev">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+                    </button>
+                    <button id="btn-play" class="btn btn-primary btn-xl" title="Läs upp / Fortsätt" data-i18n-title="title_play">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28"><path d="M8 5v14l11-7z"/></svg>
+                    </button>
+                    <button id="btn-pause" class="btn btn-icon-sm" title="Pausa" data-i18n-title="title_pause">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                    </button>
+                    <button id="btn-stop" class="btn btn-icon-sm" title="Stoppa" data-i18n-title="title_stop">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M6 6h12v12H6z"/></svg>
+                    </button>
+                    <button id="btn-next" class="btn btn-icon-sm" title="Nästa stycke" data-i18n-title="title_next">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+                    </button>
+                </div>
+                <div class="playback-row-secondary">
+                    <button id="btn-read-selected" class="btn btn-secondary w-full flex-1" title="Läs endast markerat stycke" data-i18n-title="title_read_selected" data-i18n="btn_read_selected">Läs markerat</button>
+                    <button id="btn-resume" class="btn btn-primary-soft w-full flex-1" style="display: none;" data-i18n="btn_resume">Fortsätt</button>
+                </div>
+            </div>
+
+            <div class="card settings-card">
+                <div class="setting-row">
+                    <label for="speed-range"><span data-i18n="lbl_speed">Hastighet</span> (<span id="speed-val">0.9</span>x)</label>
+                    <input type="range" id="speed-range" min="0.5" max="2.0" step="0.1" value="0.9" class="slider">
+                </div>
+                <div class="setting-row mt-2">
+                    <label for="volume-range"><span data-i18n="lbl_volume">Volym</span> (<span id="volume-val">100</span>%)</label>
+                    <input type="range" id="volume-range" min="0" max="1" step="0.05" value="1.0" class="slider">
+                </div>
+            </div>
+
+            <div class="card status-card">
+                <div class="status-header">
+                    <div id="status-text" class="status-main" data-i18n="status_ready">Klar</div>
+                    <div id="progress-text" class="status-sub">Stycken: 0 / 0</div>
+                </div>
+                <div class="status-footer mt-2" id="storage-footer" style="display: none;">
+                    <div class="help-text" data-i18n="lbl_saved_locally">Lokalt sparat</div>
+                    <button id="btn-clear-local" class="btn btn-danger btn-sm" data-i18n="btn_clear">Rensa</button>
+                </div>
+            </div>
+            
+            <button id="btn-save" class="btn btn-secondary w-full mt-auto" data-i18n="btn_save_audio">Spara ljudfil</button>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="topbar">
+                <div class="topbar-title" id="topbar-title" data-i18n="top_no_manuscript">Inget manus laddat</div>
+                <div class="privacy-badge" title="All text stannar lokalt på din dator" data-i18n-title="title_privacy">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                    <span data-i18n="badge_local_runtime">Lokal körning</span>
+                </div>
+            </header>
+
+            <div class="scroll-area">
+                <!-- Empty State -->
+                <div id="empty-state" class="empty-state">
+                    <div class="empty-icon">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="40" height="40"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                    </div>
+                    <h2 data-i18n="empty_title">Ladda in ett manus</h2>
+                    <p data-i18n="empty_desc">Öppna en Markdown-fil eller klistra in text för att börja lyssna.</p>
+                    <div class="empty-actions">
+                        <button class="btn btn-primary" onclick="document.getElementById('file-upload').click()" data-i18n="empty_btn_file">Välj .md-fil</button>
+                        <button class="btn btn-secondary" id="btn-paste-focus" data-i18n="empty_btn_paste">Klistra in text</button>
+                    </div>
+                    <p class="help-text mt-3" data-i18n="empty_privacy">All text stannar lokalt på din dator.</p>
+                </div>
+
+                <!-- Editor / Reader -->
+                <div id="editor-container" class="editor-container" style="display: none;">
+                    <textarea id="text-input" placeholder="Klistra in text här..." data-i18n-placeholder="placeholder_paste" spellcheck="false"></textarea>
+                </div>
+                <div id="reader-view" class="reader-view" style="display: none;"></div>
+            </div>
+        </main>
+        
+        <!-- Hidden Audio Element -->
+        <audio id="audio-player" style="display: none;"></audio>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
