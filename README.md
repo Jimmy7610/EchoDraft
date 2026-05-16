@@ -1,4 +1,4 @@
-# EchoDraft
+# EchoDraft v0.2.0
 
 EchoDraft är byggd av Jimmy Eliasson som ett lokalt författarverktyg för svensk/engelsk manusuppläsning.
 
@@ -8,6 +8,7 @@ EchoDraft är byggd av Jimmy Eliasson som ett lokalt författarverktyg för sven
 - **Fungerar utan moln-TTS:** Din text skickas inte till molnet. Ingen API-nyckel behövs.
 - **Har SV/EN-gränssnitt:** Stöd för både svenskt och engelskt användargränssnitt.
 - **Sparar senaste manus lokalt i webbläsaren:** Stäng fliken och fortsätt precis där du slutade, utan databas.
+- **Exportera ljud (Nytt i v0.2.0):** Spara markerade stycken som WAV-filer eller hela manuskript som ZIP-arkiv för användning i andra program.
 
 ## Snabbstart
 1. Dubbelklicka på `setup.bat` (endast första gången). Detta skapar en lokal Python-miljö och installerar beroenden (t.ex. `flask`).
@@ -31,6 +32,12 @@ EchoDraft drivs av [Piper TTS](https://github.com/rhasspy/piper).
 - Ingen text skickas till molnet eller någon extern tjänst.
 - Piper-motorn körs helt lokalt på din maskin.
 
+## Exportera ljud / Export audio
+EchoDraft v0.2.0 stöder export av ljudfiler:
+- **Markerat stycke:** Klicka på ett stycke och välj "Markerat" i Export-menyn för att ladda ner en `.wav`-fil.
+- **Hela manuset:** Välj "Manus (ZIP)" för att generera ett ZIP-arkiv med numrerade ljudfiler för varje stycke.
+- Exporterna genereras helt lokalt och sparas tillfälligt i mappen `data/exports/`. Dessa filer inkluderas inte i Git.
+
 ## Språk (Language)
 - UI supports Swedish and English.
 - The UI language is saved locally in the browser.
@@ -45,4 +52,4 @@ EchoDraft drivs av [Piper TTS](https://github.com/rhasspy/piper).
 - **Konstigt beteende i gränssnittet:** Prova att trycka F5 för att ladda om cachen.
 
 ## Version
-v0.1.0
+v0.2.0

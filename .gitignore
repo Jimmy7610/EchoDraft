@@ -6,8 +6,10 @@ __pycache__/
 
 data/cache/*
 data/uploads/*
+data/exports/*
 !data/cache/.gitkeep
 !data/uploads/.gitkeep
+!data/exports/.gitkeep
 
 tools/piper/*
 !tools/piper/README.md

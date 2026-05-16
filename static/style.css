@@ -422,6 +422,22 @@ select:focus {
     gap: 6px;
 }
 
+/* Export Card */
+.export-card {
+    border-color: rgba(0, 229, 255, 0.1);
+}
+
+.export-row {
+    display: flex;
+    gap: 6px;
+}
+
+/* Sidebar Adjustment for Scroll-free */
+.sidebar {
+    padding: var(--spacing-md);
+    gap: 8px;
+}
+
 /* Settings Card */
 .settings-card {
     gap: 4px;

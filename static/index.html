@@ -15,8 +15,8 @@
                     <div class="brand-logo">
                         <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
                         <h1>EchoDraft</h1>
-                        <span class="version-badge">v0.1.0</span>
-                    </div>
+                    <span class="version-badge">v0.2.0</span>
+                </div>
                     <div class="lang-toggle">
                         <button id="lang-sv" class="lang-btn active">SV</button>
                         <button id="lang-en" class="lang-btn">EN</button>
@@ -88,9 +88,23 @@
                     <div id="status-text" class="status-main" data-i18n="status_ready">Klar</div>
                     <div id="progress-text" class="status-sub">Stycken: 0 / 0</div>
                 </div>
+                <div id="export-status-container" class="status-footer mt-2" style="display: none;">
+                    <div id="export-status-text" class="status-main" style="font-size: 0.8rem;">Exporterar...</div>
+                    <a id="export-download-link" href="#" class="btn btn-primary-soft btn-sm" style="display: none;" download>
+                        <span data-i18n="download_btn">Ladda ner</span>
+                    </a>
+                </div>
                 <div class="status-footer mt-2" id="storage-footer" style="display: none;">
                     <div class="help-text" data-i18n="lbl_saved_locally">Lokalt sparat</div>
                     <button id="btn-clear-local" class="btn btn-danger btn-sm" data-i18n="btn_clear">Rensa</button>
+                </div>
+            </div>
+
+            <div class="card export-card">
+                <label data-i18n="export_title">Export</label>
+                <div class="export-row">
+                    <button id="btn-export-selected" class="btn btn-secondary flex-1" data-i18n="export_selected">Markerat</button>
+                    <button id="btn-export-manuscript" class="btn btn-secondary flex-1" data-i18n="export_manuscript">Manus (ZIP)</button>
                 </div>
             </div>
             

@@ -58,6 +58,10 @@ document.addEventListener('DOMContentLoaded', () => {
             empty_btn_paste: "Klistra in text",
             empty_privacy: "All text stannar lokalt på din dator.",
             placeholder_paste: "Klistra in text här...",
+            export_title: "Export",
+            export_selected: "Markerat",
+            export_manuscript: "Manus (ZIP)",
+            download_btn: "Ladda ner",
             
             // Dynamic messages
             msg_too_large: "Manuset är för stort för automatisk sparning.",
@@ -82,11 +86,17 @@ document.addEventListener('DOMContentLoaded', () => {
             msg_paragraphs_idle: "Stycke {current} av {total}",
             msg_short_pause: "Pausar kort...",
             msg_test_sample: "Det här är ett rösttest för bokuppläsning i EchoDraft. Rösten ska läsa långsamt, tydligt och med mjuka pauser mellan meningarna. Taren låg stilla i dimman, och brevet på bordet väntade på att bli förstått.",
+            msg_preparing_export: "Förbereder export...",
+            msg_exporting_paragraph: "Exporterar stycke {current} av {total}...",
+            msg_export_complete: "Export klar",
+            msg_export_failed: "Export misslyckades",
             
             alert_select_voice: "Välj en röst först.",
             alert_clear_confirm: "Vill du rensa det sparade manuset från den här webbläsaren?",
             alert_no_audio: "Ingen ljudfil finns att spara. Läs upp ett stycke först.",
             alert_generic_error: "Ett fel uppstod.",
+            alert_select_export_paragraph: "Välj ett stycke att exportera först.",
+            alert_no_text_export: "Ingen läsbar text att exportera.",
             
             err_piper_missing: "Piper hittades inte.",
             err_json_missing: "Röstens JSON-konfiguration saknas."
@@ -124,6 +134,10 @@ document.addEventListener('DOMContentLoaded', () => {
             empty_btn_paste: "Paste text",
             empty_privacy: "All text stays local on your computer.",
             placeholder_paste: "Paste text here...",
+            export_title: "Export",
+            export_selected: "Selected",
+            export_manuscript: "Manuscript (ZIP)",
+            download_btn: "Download",
             
             // Dynamic messages
             msg_too_large: "Manuscript is too large to auto-save.",
@@ -148,11 +162,17 @@ document.addEventListener('DOMContentLoaded', () => {
             msg_paragraphs_idle: "Paragraph {current} of {total}",
             msg_short_pause: "Short pause...",
             msg_test_sample: "This is a voice test for manuscript reading in EchoDraft. The voice should read clearly, calmly, and with soft pauses between sentences. The room was quiet, and the page waited to be heard.",
+            msg_preparing_export: "Preparing export...",
+            msg_exporting_paragraph: "Exporting paragraph {current} of {total}...",
+            msg_export_complete: "Export complete",
+            msg_export_failed: "Export failed",
             
             alert_select_voice: "Please select a voice first.",
             alert_clear_confirm: "Do you want to clear the saved manuscript from this browser?",
             alert_no_audio: "No audio file to save. Read a paragraph first.",
             alert_generic_error: "An error occurred.",
+            alert_select_export_paragraph: "Please select a paragraph to export first.",
+            alert_no_text_export: "No readable text to export.",
             
             err_piper_missing: "Piper was not found.",
             err_json_missing: "Voice JSON configuration is missing."
@@ -279,6 +299,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const volumeVal = safeGetElement('volume-val');
     
     const audioPlayer = safeGetElement('audio-player');
+    
+    const exportStatusContainer = safeGetElement('export-status-container');
+    const exportStatusText = safeGetElement('export-status-text');
+    const exportDownloadLink = safeGetElement('export-download-link');
 
     // State
     let paragraphs = [];
@@ -1041,6 +1065,106 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('echodraft_volume', val);
         });
     }
+
+    async function exportSelected() {
+        if (currentParagraphIndex < 0 || paragraphs.length === 0) {
+            alert(t('alert_select_export_paragraph'));
+            return;
+        }
+
+        const voice = voiceSelect.value;
+        if (!voice) {
+            alert(t('alert_select_voice'));
+            return;
+        }
+
+        const block = paragraphs[currentParagraphIndex];
+        const text = block.speakText;
+        const display = block.displayText;
+
+        showExportUI(t('msg_preparing_export'));
+
+        try {
+            const res = await fetch('/api/export/paragraph', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    text: text,
+                    voice: voice,
+                    filenameBase: display
+                })
+            });
+
+            const data = await res.json();
+            if (data.ok) {
+                showExportComplete(data.downloadUrl);
+            } else {
+                showExportFailed(translateBackendError(data.error));
+            }
+        } catch (e) {
+            showExportFailed(t('msg_network_error'));
+        }
+    }
+
+    async function exportManuscript() {
+        if (paragraphs.length === 0) {
+            alert(t('alert_no_text_export'));
+            return;
+        }
+
+        const voice = voiceSelect.value;
+        if (!voice) {
+            alert(t('alert_select_voice'));
+            return;
+        }
+
+        const title = topbarTitle ? topbarTitle.textContent : "manuscript";
+
+        showExportUI(t('msg_preparing_export'));
+
+        try {
+            const res = await fetch('/api/export/manuscript', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    blocks: paragraphs,
+                    voice: voice,
+                    filenameBase: title
+                })
+            });
+
+            const data = await res.json();
+            if (data.ok) {
+                showExportComplete(data.downloadUrl);
+            } else {
+                showExportFailed(translateBackendError(data.error));
+            }
+        } catch (e) {
+            showExportFailed(t('msg_network_error'));
+        }
+    }
+
+    function showExportUI(msg) {
+        if (exportStatusContainer) exportStatusContainer.style.display = 'flex';
+        if (exportStatusText) exportStatusText.textContent = msg;
+        if (exportDownloadLink) exportDownloadLink.style.display = 'none';
+    }
+
+    function showExportComplete(url) {
+        if (exportStatusText) exportStatusText.textContent = t('msg_export_complete');
+        if (exportDownloadLink) {
+            exportDownloadLink.href = url;
+            exportDownloadLink.style.display = 'inline-flex';
+        }
+    }
+
+    function showExportFailed(err) {
+        if (exportStatusText) exportStatusText.textContent = t('msg_export_failed');
+        alert(err);
+    }
+
+    safeAddListener('btn-export-selected', 'click', exportSelected);
+    safeAddListener('btn-export-manuscript', 'click', exportManuscript);
 
     // Init
     translateUI();
